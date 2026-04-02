@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>透视变换可视化 (8参数)</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔷 透视变换可视化</h1>
+            <p>8参数非线性变换：平移 + 旋转 + 缩放 + 剪切 + <strong>透视</strong></p>
+        </header>
+
+        <main class="main-layout">
+            <!-- 左侧：画布 -->
+            <section class="canvas-section">
+                <canvas id="transformCanvas" width="600" height="600"></canvas>
+                <div class="canvas-info">
+                    <span>坐标系: 原点在中心</span>
+                    <span id="mouseCoords">鼠标: (0, 0)</span>
+                </div>
+            </section>
+
+            <!-- 右侧：控制面板 -->
+            <section class="controls-section">
+                <!-- 变换参数 -->
+                <div class="panel">
+                    <h3>⚙️ 仿射变换 (6参数)</h3>
+                    
+                    <div class="control-row">
+                        <div class="control-group half">
+                            <label>平移 X: <span id="val-tx">0</span></label>
+                            <input type="range" id="tx" min="-300" max="300" value="0" step="10">
+                        </div>
+                        <div class="control-group half">
+                            <label>平移 Y: <span id="val-ty">0</span></label>
+                            <input type="range" id="ty" min="-300" max="300" value="0" step="10">
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>旋转 (度): <span id="val-rotate">0</span>°</label>
+                        <input type="range" id="rotate" min="-180" max="180" value="0" step="5">
+                    </div>
+                    
+                    <div class="control-row">
+                        <div class="control-group half">
+                            <label>缩放 X: <span id="val-sx">1</span></label>
+                            <input type="range" id="sx" min="0.1" max="3" value="1" step="0.1">
+                        </div>
+                        <div class="control-group half">
+                            <label>缩放 Y: <span id="val-sy">1</span></label>
+                            <input type="range" id="sy" min="0.1" max="3" value="1" step="0.1">
+                        </div>
+                    </div>
+                    
+                    <div class="control-row">
+                        <div class="control-group half">
+                            <label>剪切 X: <span id="val-shx">0</span></label>
+                            <input type="range" id="shx" min="-2" max="2" value="0" step="0.1">
+                        </div>
+                        <div class="control-group half">
+                            <label>剪切 Y: <span id="val-shy">0</span></label>
+                            <input type="range" id="shy" min="-2" max="2" value="0" step="0.1">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 透视变换参数 -->
+                <div class="panel perspective-panel">
+                    <h3>🎯 透视变换 (2额外参数)</h3>
+                    <p class="hint">让平行线相交，创造近大远小的透视效果</p>
+                    
+                    <div class="control-group">
+                        <label>透视 X (p1): <span id="val-p1">0</span></label>
+                        <input type="range" id="p1" min="-0.5" max="0.5" value="0" step="0.01">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>透视 Y (p2): <span id="val-p2">0</span></label>
+                        <input type="range" id="p2" min="-0.5" max="0.5" value="0" step="0.01">
+                    </div>
+                </div>
+
+                <!-- 矩阵显示 -->
+                <div class="panel matrix-panel">
+                    <h3>📐 3×3 变换矩阵</h3>
+                    <div id="matrix-display" class="matrix">
+                        <div class="matrix-row">
+                            <span>1.000</span><span>0.000</span><span>0.000</span>
+                        </div>
+                        <div class="matrix-row">
+                            <span>0.000</span><span>1.000</span><span>0.000</span>
+                        </div>
+                        <div class="matrix-row">
+                            <span>0.000</span><span>0.000</span><span>1.000</span>
+                        </div>
+                    </div>
+                    <p class="matrix-note">注意: 第3行的 p1, p2 是透视参数</p>
+                </div>
+
+                <!-- 预设形状 -->
+                <div class="panel">
+                    <h3>🔷 预设图形</h3>
+                    <div class="preset-buttons">
+                        <button class="preset-btn active" data-shape="square">正方形</button>
+                        <button class="preset-btn" data-shape="triangle">三角形</button>
+                        <button class="preset-btn" data-shape="star">五角星</button>
+                        <button class="preset-btn" data-shape="house">房子</button>
+                    </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="panel actions-panel">
+                    <h3>⚡ 操作</h3>
+                    <div class="action-buttons">
+                        <button id="resetBtn" class="btn-secondary">🔄 重置</button>
+                        <button id="animateBtn" class="btn-primary">▶️ 动画演示</button>
+                        <button id="exportBtn" class="btn-secondary">📋 复制矩阵</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>8参数透视变换可视化 | 8-Parameter Perspective Transform Visualizer</p>
+        </footer>
+    </div>
+
+    <script src="js/matrix.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

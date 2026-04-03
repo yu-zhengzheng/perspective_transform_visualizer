@@ -1,3 +1,12 @@
+<!-- 配置（修改这里来调整初始值） -->
+<script>
+const configData = {
+    "matrix": { "m00": 1, "m01": 0, "m02": 0, "m10": 0, "m11": 1, "m12": 0, "m20": 0, "m21": 0, "m22": 2 },
+    "sliders": { "tx": 0, "ty": 0, "rotate": 0, "sx": 1, "sy": 1, "shx": 0, "shy": 0, "px": 0, "py": 0, "tz": 1 },
+    "polygon": [[0, 0], [1, 0], [1, 1], [0, 1]]
+};
+</script>
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -108,9 +117,10 @@
             <label>透视变换矩阵 (3×3)</label>
             <div class="matrix-grid" id="matrixInputs">
                 <input type="number" step="0.1" value="1" id="m00"><input type="number" step="0.1" value="0" id="m01"><input type="number" step="0.1" value="0" id="m02">
-                <input type="number" step="0.1" value="0" id="m10"><input type="number" step="0.1" value="1" id="m11"><input type="number" step="0.1" value="0.5" id="m12">
-                <input type="number" step="0.1" value="0.2" id="m21"><input type="number" step="0.1" value="0.2" id="m20"><input type="number" step="0.1" value="1" id="m22">
+                <input type="number" step="0.1" value="0" id="m10"><input type="number" step="0.1" value="1" id="m11"><input type="number" step="0.1" value="0" id="m12">
+                <input type="number" step="0.1" value="0" id="m20"><input type="number" step="0.1" value="0" id="m21"><input type="number" step="0.1" value="1" id="m22">
             </div>
+            <button onclick="resetMatrix()" style="margin-top:8px;padding:6px;">🔄 复位矩阵</button>
         </div>
 
         <div class="param-group">
@@ -130,7 +140,6 @@
         <h2>📐 计算结果</h2>
         <div id="result"></div>
         <div style="margin-top:15px;">
-            <button onclick="resetMatrix()">🔄 复位矩阵</button>
             <button onclick="resetPolygon()">🔄 复位多边形</button>
         </div>
         <div id="polygon-inputs"></div>
@@ -143,17 +152,59 @@
     
     <div id="container"></div>
 
+    <!-- 配置（修改这里来调整初始值） -->
+    <script>
+        const configData = {
+            "matrix": { "m00": 1, "m01": 0, "m02": 0, "m10": 0, "m11": 1, "m12": 0, "m20": 0, "m21": 0, "m22": 2 },
+            "sliders": { "tx": 0, "ty": 0, "rotate": 0, "sx": 1, "sy": 1, "shx": 0, "shy": 0, "px": 0, "py": 0, "tz": 0 },
+            "polygon": [[0, 0], [1, 0], [1, 1], [0, 1]]
+        };
+    </script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
         let scene, camera, renderer, controls;
         let originalGroup, transformedRawGroup, projectedGroup;
         
-        // 原始二维多边形（正方形）
-        let originalPolygon = [
-            [-1, -1], [1, -1], [1, 1], [-1, 1]
-        ];
+        // 原始二维多边形
+        let originalPolygon = [];
+
+        function loadConfig() {
+            return configData;
+        }
+
+        function applyConfig(config) {
+            // 应用矩阵
+            document.getElementById('m00').value = config.matrix.m00;
+            document.getElementById('m01').value = config.matrix.m01;
+            document.getElementById('m02').value = config.matrix.m02;
+            document.getElementById('m10').value = config.matrix.m10;
+            document.getElementById('m11').value = config.matrix.m11;
+            document.getElementById('m12').value = config.matrix.m12;
+            document.getElementById('m20').value = config.matrix.m20;
+            document.getElementById('m21').value = config.matrix.m21;
+            document.getElementById('m22').value = config.matrix.m22;
+            
+            // 应用滑块
+            document.getElementById('tx').value = config.sliders.tx;
+            document.getElementById('ty').value = config.sliders.ty;
+            document.getElementById('rotate').value = config.sliders.rotate;
+            document.getElementById('sx').value = config.sliders.sx;
+            document.getElementById('sy').value = config.sliders.sy;
+            document.getElementById('shx').value = config.sliders.shx;
+            document.getElementById('shy').value = config.sliders.shy;
+            document.getElementById('px').value = config.sliders.px;
+            document.getElementById('py').value = config.sliders.py;
+            document.getElementById('tz').value = config.sliders.tz;
+            
+            // 应用多边形
+            originalPolygon = config.polygon;
+            renderPolygonInputs();
+        }
 
         function init() {
+            const config = loadConfig();
+            applyConfig(config);
             renderPolygonInputs();
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x1a1a2e);
@@ -435,21 +486,19 @@
                 `<strong>投影3D(x,y,z):</strong>\n<pre>${formatPointsOriginal(result.projected)}</pre>`;
         }
 
+        let currentConfig = configData;
+
         function resetMatrix() {
-            document.getElementById('m00').value = 1;
-            document.getElementById('m01').value = 0;
-            document.getElementById('m02').value = 0;
-            document.getElementById('m10').value = 0;
-            document.getElementById('m11').value = 1;
-            document.getElementById('m12').value = 0;
-            document.getElementById('m20').value = 0;
-            document.getElementById('m21').value = 0;
-            document.getElementById('m22').value = 1;
+            const config = loadConfig();
+            currentConfig = config;
+            applyConfig(config);
             updateTransform();
         }
 
         function resetPolygon() {
-            originalPolygon = [[-1,-1], [1,-1], [1,1], [-1,1]];
+            const config = loadConfig();
+            currentConfig = config;
+            originalPolygon = config.polygon;
             renderPolygonInputs();
             updateTransform();
         }

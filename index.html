@@ -189,10 +189,26 @@
             colors.needsUpdate = true;
             scene.add(axesHelper);
 
-            // 坐标轴标签（暂时禁用）
-            // scene.add(createLabel('X', new THREE.Vector3(3.2, 0, 0)));
-            // scene.add(createLabel('Y', new THREE.Vector3(0, 3.2, 0)));
-            // scene.add(createLabel('Z', new THREE.Vector3(0, 0, 3.2)));
+            // 坐标轴标签
+            function createLabel(text, pos) {
+                const canvas = document.createElement('canvas');
+                canvas.width = 64; canvas.height = 64;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 48px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(text, 32, 32);
+                const texture = new THREE.CanvasTexture(canvas);
+                const spriteMat = new THREE.SpriteMaterial({ map: texture });
+                const sprite = new THREE.Sprite(spriteMat);
+                sprite.position.copy(pos);
+                sprite.scale.set(0.3, 0.3, 0.3);
+                return sprite;
+            }
+            scene.add(createLabel('X', new THREE.Vector3(3.2, 0, 0)));
+            scene.add(createLabel('Y', new THREE.Vector3(0, 3.2, 0)));
+            scene.add(createLabel('Z', new THREE.Vector3(0, 0, 3.2)));
 
             // z=1 平面参考
             const planeGeom = new THREE.PlaneGeometry(4, 4);

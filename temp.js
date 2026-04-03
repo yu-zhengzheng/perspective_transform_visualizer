@@ -1,153 +1,4 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>透视变换可视化</title>
-    <style>
-        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: #eee; }
-        #container { width: 100vw; height: 100vh; }
-        #controls {
-            position: absolute; top: 20px; left: 20px;
-            background: rgba(30, 30, 50, 0.9);
-            padding: 20px; border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            max-width: 320px;
-        }
-        #controls-right {
-            position: absolute; top: 20px; right: 20px;
-            background: rgba(30, 30, 50, 0.9);
-            padding: 20px; border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            max-width: 280px;
-        }
-        h2 { margin: 0 0 15px 0; color: #00d4ff; font-size: 1.3em; }
-        .param-group { margin-bottom: 12px; }
-        label { display: block; margin-bottom: 4px; color: #aaa; font-size: 0.9em; }
-        input[type="number"] {
-            width: 100%; padding: 8px;
-            background: #2a2a4a; border: 1px solid #444;
-            color: #fff; border-radius: 6px;
-            box-sizing: border-box;
-        }
-        input[type="range"] { width: 100%; }
-        .matrix-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr);
-            gap: 4px; margin-top: 8px;
-        }
-        .matrix-grid input { text-align: center; }
-        button {
-            width: 100%; padding: 10px; margin-top: 10px;
-            background: linear-gradient(135deg, #00d4ff, #0099cc);
-            border: none; color: white; border-radius: 6px;
-            cursor: pointer; font-weight: bold;
-            transition: transform 0.2s;
-        }
-        button:hover { transform: scale(1.02); }
-        #info {
-            margin-top: 15px; padding: 10px;
-            background: #252540; border-radius: 6px;
-            font-size: 0.85em; line-height: 1.5;
-        }
-        .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
-        .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.85em; }
-        .dot { width: 12px; height: 12px; border-radius: 50%; }
-        pre { margin: 5px 0; white-space: pre; font-family: monospace; }
-        .point-input { display: flex; align-items: center; gap: 5px; margin-bottom: 8px; }
-        .point-input span { width: 24px; color: #aaa; }
-        .point-input input { width: 70px; }
-    </style>
-</head>
-<body>
-    <div id="controls">
-        <h2>🔮 透视变换可视化</h2>
-        
-        <div class="param-group">
-            <label>平移 (tx, ty)</label>
-            <div style="display:flex;gap:5px">
-                <input type="range" id="tx" min="-2" max="2" step="0.1" value="0" style="flex:1">
-                <input type="range" id="ty" min="-2" max="2" step="0.1" value="0" style="flex:1">
-            </div>
-        </div>
 
-        <div class="param-group">
-            <label>旋转 (角度°)</label>
-            <input type="range" id="rotate" min="-180" max="180" step="1" value="0">
-        </div>
-
-        <div class="param-group">
-            <label>缩放 (sx, sy)</label>
-            <div style="display:flex;gap:5px">
-                <input type="range" id="sx" min="0.1" max="3" step="0.1" value="1" style="flex:1">
-                <input type="range" id="sy" min="0.1" max="3" step="0.1" value="1" style="flex:1">
-            </div>
-        </div>
-
-        <div class="param-group">
-            <label>剪切 (shx, shy)</label>
-            <div style="display:flex;gap:5px">
-                <input type="range" id="shx" min="-2" max="2" step="0.1" value="0" style="flex:1">
-                <input type="range" id="shy" min="-2" max="2" step="0.1" value="0" style="flex:1">
-            </div>
-        </div>
-
-        <div class="param-group">
-            <label>透视 (px, py)</label>
-            <div style="display:flex;gap:5px">
-                <input type="range" id="px" min="-1" max="1" step="0.05" value="0" style="flex:1">
-                <input type="range" id="py" min="-1" max="1" step="0.05" value="0" style="flex:1">
-            </div>
-        </div>
-
-        <div class="param-group">
-            <label>Z轴距离 (d)</label>
-            <input type="range" id="tz" min="-2" max="2" step="0.1" value="0">
-        </div>
-
-        <div class="param-group">
-            <label>透视变换矩阵 (3×3)</label>
-            <div class="matrix-grid" id="matrixInputs">
-                <input type="number" step="0.1" value="1" id="m00"><input type="number" step="0.1" value="0" id="m01"><input type="number" step="0.1" value="0" id="m02">
-                <input type="number" step="0.1" value="0" id="m10"><input type="number" step="0.1" value="1" id="m11"><input type="number" step="0.1" value="0.5" id="m12">
-                <input type="number" step="0.1" value="0.2" id="m20"><input type="number" step="0.1" value="0.2" id="m21"><input type="number" step="0.1" value="1" id="m22">
-            </div>
-        </div>
-
-        <div class="param-group">
-            <label>相机视角 (仰角/方位角)</label>
-            <input type="range" id="elev" min="-90" max="90" value="20">
-            <input type="range" id="azim" min="-180" max="180" value="45">
-        </div>
-
-        <!-- 实时更新，移除按钮 -->
-        <button onclick="resetAll()">🔄 复位</button>
-
-        <div class="legend">
-            <div class="legend-item"><div class="dot" style="background:#0088ff"></div>原始 (z=1)</div>
-            <div class="legend-item"><div class="dot" style="background:#ff4444"></div>变换后3D</div>
-            <div class="legend-item"><div class="dot" style="background:#44ff44"></div>投影 (z=1)</div>
-        </div>
-
-        <div id="info">
-            <strong>计算结果：</strong>
-            <div id="result"></div>
-        </div>
-    </div>
-    
-    <div id="controls-right">
-        <h2>📐 原始图形</h2>
-        <div id="polygon-inputs"></div>
-        <div style="display:flex;gap:5px;margin-top:8px">
-            <button onclick="addPoint()">+ 点</button>
-            <button onclick="removePoint()">- 点</button>
-        </div>
-        <button onclick="updatePolygon()">✨ 更新图形</button>
-    </div>
-    
-    <div id="container"></div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script>
         let scene, camera, renderer, controls;
         let originalGroup, transformedRawGroup, projectedGroup;
         
@@ -428,7 +279,6 @@
             originalPolygon = [[-1,-1], [1,-1], [1,1], [-1,1]];
             renderPolygonInputs();
             resetMatrix();
-        }
 
         function resetMatrix() {
             document.getElementById('m00').value = 1;
@@ -498,6 +348,4 @@
         }
 
         init();
-    </script>
-</body>
-</html>
+    

@@ -56,42 +56,48 @@ def render_3d_visualization(original_points, transformed_3d_raw, transformed_3d_
     fig = plt.figure(figsize=(12, 10))
     ax = fig.add_subplot(111, projection='3d')
     
-    # 原始多边形在z=1平面（蓝色）
+    # 原始多边形在z=1平面（蓝色）- 闭合多边形
     original_3d = np.hstack([original_points, np.ones((len(original_points), 1))])
     ax.scatter(original_3d[:, 0], original_3d[:, 1], original_3d[:, 2], 
               color='blue', s=100, label='Original Polygon (z=1)')
     if len(original_points) > 1:
-        ax.plot(original_3d[:, 0], original_3d[:, 1], original_3d[:, 2], 
+        # 闭合多边形：首尾相连
+        original_3d_closed = np.vstack([original_3d, original_3d[0]])
+        ax.plot(original_3d_closed[:, 0], original_3d_closed[:, 1], original_3d_closed[:, 2], 
                 color='blue', alpha=0.5, linewidth=2)
     
-    # 透视变换后的3D点 (x', y', w)（红色）
+    # 透视变换后的3D点 (x', y', w)（红色）- 闭合多边形
     ax.scatter(transformed_3d_raw[:, 0], transformed_3d_raw[:, 1], transformed_3d_raw[:, 2], 
               color='red', s=100, label='Transformed 3D (x\',y\',w)')
     if len(transformed_3d_raw) > 1:
-        ax.plot(transformed_3d_raw[:, 0], transformed_3d_raw[:, 1], transformed_3d_raw[:, 2], 
+        # 闭合多边形：首尾相连
+        transformed_3d_raw_closed = np.vstack([transformed_3d_raw, transformed_3d_raw[0]])
+        ax.plot(transformed_3d_raw_closed[:, 0], transformed_3d_raw_closed[:, 1], transformed_3d_raw_closed[:, 2], 
                 color='red', alpha=0.5, linewidth=2)
     
-    # 投影回z=1平面的3D点 (x'/w, y'/w, 1)（绿色）
+    # 投影回z=1平面的3D点 (x'/w, y'/w, 1)（绿色）- 闭合多边形
     ax.scatter(transformed_3d_projected[:, 0], transformed_3d_projected[:, 1], transformed_3d_projected[:, 2], 
               color='green', s=100, label='Projected (x\'/w,y\'/w,1)')
     if len(transformed_3d_projected) > 1:
-        ax.plot(transformed_3d_projected[:, 0], transformed_3d_projected[:, 1], transformed_3d_projected[:, 2], 
+        # 闭合多边形：首尾相连
+        transformed_3d_projected_closed = np.vstack([transformed_3d_projected, transformed_3d_projected[0]])
+        ax.plot(transformed_3d_projected_closed[:, 0], transformed_3d_projected_closed[:, 1], transformed_3d_projected_closed[:, 2], 
                 color='green', alpha=0.5, linewidth=2)
     
-    # 连接原点(0,0,0)到透视变换点的虚线（黑色）
+    # 连接原点(0,0,0)到较远的点（透视变换点或投影点）的虚线（黑色）
+    # 三点共线，原点(0,0,0)、透视变换点(x',y',w)、投影点(x'/w,y'/w,1)
+    # 直接比较z坐标即可：w >= 1 用透视变换点，否则用投影点
     origin = np.array([0, 0, 0])
     for i in range(len(transformed_3d_raw)):
-        ax.plot([origin[0], transformed_3d_raw[i, 0]],
-               [origin[1], transformed_3d_raw[i, 1]],
-               [origin[2], transformed_3d_raw[i, 2]],
+        w = transformed_3d_raw[i, 2]
+        if w >= 1:
+            far_point = transformed_3d_raw[i]
+        else:
+            far_point = transformed_3d_projected[i]
+        ax.plot([origin[0], far_point[0]],
+               [origin[1], far_point[1]],
+               [origin[2], far_point[2]],
                'k--', linewidth=1)
-    
-    # 连接原始点到透视变换点的虚线（表示透视投影路径）
-    for i in range(len(original_points)):
-        ax.plot([original_3d[i, 0], transformed_3d_raw[i, 0]],
-               [original_3d[i, 1], transformed_3d_raw[i, 1]],
-               [original_3d[i, 2], transformed_3d_raw[i, 2]],
-               'k-.', alpha=0.5, linewidth=1)
     
     # 绘制z=1平面参考（半透明灰色，加深）
     xx, yy = np.meshgrid(np.linspace(-2, 2, 10), np.linspace(-2, 2, 10))
@@ -123,9 +129,9 @@ def main():
     
     # 示例：定义一个透视变换矩阵（简单的Z轴倾斜）
     transform_matrix = np.array([
-        [1, 0, 0],
-        [0, 1, 0],
-        [0.1, 0.1, 1]
+        [1, 0.1, 0],
+        [0, 1, 0.5],
+        [0.2, 0.2, 1]
     ])
     
     print("输入参数：")

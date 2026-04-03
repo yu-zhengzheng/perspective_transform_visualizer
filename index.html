@@ -109,7 +109,7 @@
             <div class="matrix-grid" id="matrixInputs">
                 <input type="number" step="0.1" value="1" id="m00"><input type="number" step="0.1" value="0" id="m01"><input type="number" step="0.1" value="0" id="m02">
                 <input type="number" step="0.1" value="0" id="m10"><input type="number" step="0.1" value="1" id="m11"><input type="number" step="0.1" value="0.5" id="m12">
-                <input type="number" step="0.1" value="0.2" id="m20"><input type="number" step="0.1" value="0.2" id="m21"><input type="number" step="0.1" value="1" id="m22">
+                <input type="number" step="0.1" value="0.2" id="m21"><input type="number" step="0.1" value="0.2" id="m20"><input type="number" step="0.1" value="1" id="m22">
             </div>
         </div>
 
@@ -410,28 +410,32 @@
             clearGroup(transformedRawGroup);
             clearGroup(projectedGroup);
 
-            // 原始多边形 (z=1)
-            const original3D = originalPolygon.map(([x, y]) => [x, y, 1]);
+            // 原始多边形 (y=1) - 画到 (x, z, y)
+            const original3D = originalPolygon.map(([x, y]) => [x, 1, y]);
             addPolygon(originalGroup, original3D, 0x0088ff);
             
-            // 变换后3D
-            addPolygon(transformedRawGroup, result.raw, 0xff4444);
+            // 变换后3D - 画到 (x, z, y)
+            const transformedRawConverted = result.raw.map(([x, y, z]) => [x, z, y]);
+            addPolygon(transformedRawGroup, transformedRawConverted, 0xff4444);
             
-            // 投影 (z=1)
-            addPolygon(projectedGroup, result.projected, 0x44ff44);
+            // 投影 (z=1) - 画到 (x, z, y)
+            const projectedConverted = result.projected.map(([x, y, z]) => [x, z, y]);
+            addPolygon(projectedGroup, projectedConverted, 0x44ff44);
             
-            // 虚线连接
+            // 虚线连接 - 用转换后的坐标
             const dashedPoints = result.raw.map((pt, i) => {
                 const w = pt[2];
-                return w >= 1 ? pt : result.projected[i];
+                const rawConverted = [pt[0], pt[2], pt[1]];
+                const projConverted = [result.projected[i][0], result.projected[i][2], result.projected[i][1]];
+                return w >= 1 ? rawConverted : projConverted;
             });
             addDashedLine(originalGroup, dashedPoints);
 
-            // 更新信息
-            const formatPoints = (arr) => arr.map(p => `${p[0].toFixed(2)}\t${p[1].toFixed(2)}\t${p[2] !== undefined ? p[2].toFixed(2) : ''}`).join('\n');
+            // 更新信息 - 显示转换后的坐标 (x, z, y)
+            const formatPointsConverted = (arr) => arr.map(p => `${p[0].toFixed(2)}\t${p[2].toFixed(2)}\t${p[1].toFixed(2)}`).join('\n');
             document.getElementById('result').innerHTML = 
-                `<strong>变换后3D:</strong>\n<pre>${formatPoints(result.raw)}</pre>` +
-                `<strong>投影3D(z=1):</strong>\n<pre>${formatPoints(result.projected)}</pre>`;
+                `<strong>变换后3D (x,z,y):</strong>\n<pre>${formatPointsConverted(transformedRawConverted)}</pre>` +
+                `<strong>投影3D(x,z,y):</strong>\n<pre>${formatPointsConverted(projectedConverted)}</pre>`;
         }
 
         function resetAll() {

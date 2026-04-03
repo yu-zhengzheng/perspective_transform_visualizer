@@ -114,8 +114,14 @@
             directional.position.set(5, 10, 5);
             scene.add(directional);
 
-            // 坐标系
+            // 坐标系 - 纯白色
             const axesHelper = new THREE.AxesHelper(3);
+            // 修改 geometry 的 color attribute 为白色
+            const colors = axesHelper.geometry.attributes.color;
+            for (let i = 0; i < colors.count; i++) {
+                colors.setXYZ(i, 1, 1, 1);
+            }
+            colors.needsUpdate = true;
             scene.add(axesHelper);
 
             // z=1 平面参考
@@ -155,7 +161,7 @@
                 const angle = Math.atan2(camera.position.z, camera.position.x) + dx * 0.01;
                 camera.position.x = r * Math.cos(angle);
                 camera.position.z = r * Math.sin(angle);
-                camera.position.y = Math.max(0.1, camera.position.y - dy * 0.02);
+                camera.position.y = Math.max(0.1, camera.position.y + dy * 0.02);
                 camera.lookAt(0, 0.5, 0);
                 prevX = e.clientX; prevY = e.clientY;
             });

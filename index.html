@@ -52,6 +52,43 @@
         <h2>🔮 透视变换可视化</h2>
         
         <div class="param-group">
+            <label>平移 (tx, ty)</label>
+            <div style="display:flex;gap:5px">
+                <input type="range" id="tx" min="-2" max="2" step="0.1" value="0" style="flex:1">
+                <input type="range" id="ty" min="-2" max="2" step="0.1" value="0" style="flex:1">
+            </div>
+        </div>
+
+        <div class="param-group">
+            <label>旋转 (角度°)</label>
+            <input type="range" id="rotate" min="-180" max="180" step="1" value="0">
+        </div>
+
+        <div class="param-group">
+            <label>缩放 (sx, sy)</label>
+            <div style="display:flex;gap:5px">
+                <input type="range" id="sx" min="0.1" max="3" step="0.1" value="1" style="flex:1">
+                <input type="range" id="sy" min="0.1" max="3" step="0.1" value="1" style="flex:1">
+            </div>
+        </div>
+
+        <div class="param-group">
+            <label>剪切 (shx, shy)</label>
+            <div style="display:flex;gap:5px">
+                <input type="range" id="shx" min="-2" max="2" step="0.1" value="0" style="flex:1">
+                <input type="range" id="shy" min="-2" max="2" step="0.1" value="0" style="flex:1">
+            </div>
+        </div>
+
+        <div class="param-group">
+            <label>透视 (px, py)</label>
+            <div style="display:flex;gap:5px">
+                <input type="range" id="px" min="-1" max="1" step="0.05" value="0" style="flex:1">
+                <input type="range" id="py" min="-1" max="1" step="0.05" value="0" style="flex:1">
+            </div>
+        </div>
+
+        <div class="param-group">
             <label>透视变换矩阵 (3×3)</label>
             <div class="matrix-grid" id="matrixInputs">
                 <input type="number" step="0.1" value="1" id="m00"><input type="number" step="0.1" value="0" id="m01"><input type="number" step="0.1" value="0" id="m02">
@@ -147,7 +184,19 @@
 
             // 矩阵输入实时更新
             document.querySelectorAll('.matrix-grid input').forEach(input => {
-                input.addEventListener('input', updateTransform);
+                input.addEventListener('input', () => {
+                    isUpdatingFromMatrix = true;
+                    updateTransform();
+                    isUpdatingFromMatrix = false;
+                });
+            });
+
+            // 滚动条实时更新
+            ['tx','ty','rotate','sx','sy','shx','shy','px','py'].forEach(id => {
+                document.getElementById(id).addEventListener('input', () => {
+                    isUpdatingFromSliders = false;
+                    updateTransform();
+                });
             });
 
             // 鼠标控制
@@ -170,12 +219,74 @@
             animate();
         }
 
+        let isUpdatingFromSliders = false;
+        let isUpdatingFromMatrix = false;
+
         function getMatrix() {
-            return [
-                [parseFloat(document.getElementById('m00').value), parseFloat(document.getElementById('m01').value), parseFloat(document.getElementById('m02').value)],
-                [parseFloat(document.getElementById('m10').value), parseFloat(document.getElementById('m11').value), parseFloat(document.getElementById('m12').value)],
-                [parseFloat(document.getElementById('m20').value), parseFloat(document.getElementById('m21').value), parseFloat(document.getElementById('m22').value)]
-            ];
+            // 如果正在从矩阵输入框更新，不读取滚动条
+            if (isUpdatingFromMatrix) {
+                return [
+                    [parseFloat(document.getElementById('m00').value), parseFloat(document.getElementById('m01').value), parseFloat(document.getElementById('m02').value)],
+                    [parseFloat(document.getElementById('m10').value), parseFloat(document.getElementById('m11').value), parseFloat(document.getElementById('m12').value)],
+                    [parseFloat(document.getElementById('m20').value), parseFloat(document.getElementById('m21').value), parseFloat(document.getElementById('m22').value)]
+                ];
+            }
+
+            // 从滚动条计算矩阵
+            const tx = parseFloat(document.getElementById('tx').value);
+            const ty = parseFloat(document.getElementById('ty').value);
+            const rotate = parseFloat(document.getElementById('rotate').value) * Math.PI / 180;
+            const sx = parseFloat(document.getElementById('sx').value);
+            const sy = parseFloat(document.getElementById('sy').value);
+            const shx = parseFloat(document.getElementById('shx').value);
+            const shy = parseFloat(document.getElementById('shy').value);
+            const px = parseFloat(document.getElementById('px').value);
+            const py = parseFloat(document.getElementById('py').value);
+
+            const T = [[1, 0, tx], [0, 1, ty], [0, 0, 1]];
+            const R = [[Math.cos(rotate), -Math.sin(rotate), 0], [Math.sin(rotate), Math.cos(rotate), 0], [0, 0, 1]];
+            const S = [[sx, 0, 0], [0, sy, 0], [0, 0, 1]];
+            const Sh = [[1, shx, 0], [shy, 1, 0], [0, 0, 1]];
+            const P = [[1, 0, 0], [0, 1, 0], [px, py, 1]];
+
+            function mul(A, B) {
+                const C = [[0,0,0],[0,0,0],[0,0,0]];
+                for (let i = 0; i < 3; i++)
+                    for (let j = 0; j < 3; j++)
+                        for (let k = 0; k < 3; k++)
+                            C[i][j] += A[i][k] * B[k][j];
+                return C;
+            }
+            return mul(mul(mul(mul(P, Sh), S), R), T);
+        }
+
+        function syncMatrixToInputs(matrix) {
+            isUpdatingFromSliders = true;
+            document.getElementById('m00').value = matrix[0][0].toFixed(2);
+            document.getElementById('m01').value = matrix[0][1].toFixed(2);
+            document.getElementById('m02').value = matrix[0][2].toFixed(2);
+            document.getElementById('m10').value = matrix[1][0].toFixed(2);
+            document.getElementById('m11').value = matrix[1][1].toFixed(2);
+            document.getElementById('m12').value = matrix[1][2].toFixed(2);
+            document.getElementById('m20').value = matrix[2][0].toFixed(2);
+            document.getElementById('m21').value = matrix[2][1].toFixed(2);
+            document.getElementById('m22').value = matrix[2][2].toFixed(2);
+            isUpdatingFromSliders = false;
+        }
+
+        function syncSlidersFromMatrix(matrix) {
+            // 从矩阵反向解析参数（简化版）
+            // 这只是个近似，主要用于让用户看到矩阵变化
+            isUpdatingFromMatrix = true;
+            // 平移
+            document.getElementById('tx').value = matrix[0][2];
+            document.getElementById('ty').value = matrix[1][2];
+            // 缩放
+            document.getElementById('sx').value = Math.sqrt(matrix[0][0]**2 + matrix[1][0]**2);
+            document.getElementById('sy').value = Math.sqrt(matrix[0][1]**2 + matrix[1][1]**2);
+            // 旋转（简化）
+            document.getElementById('rotate').value = Math.atan2(matrix[1][0], matrix[0][0]) * 180 / Math.PI;
+            isUpdatingFromMatrix = false;
         }
 
         function perspectiveTransform2DTo3D(points2D, matrix) {
@@ -237,6 +348,9 @@
         function updateTransform() {
             const matrix = getMatrix();
             const result = perspectiveTransform2DTo3D(originalPolygon, matrix);
+            
+            // 同步矩阵到输入框
+            syncMatrixToInputs(matrix);
             
             // 清理旧内容
             clearGroup(originalGroup);

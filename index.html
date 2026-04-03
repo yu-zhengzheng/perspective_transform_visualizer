@@ -29,6 +29,8 @@ const configData = {
             padding: 20px; border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
             max-width: 280px;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
         }
         h2 { margin: 0 0 15px 0; color: #00d4ff; font-size: 1.3em; }
         .param-group { margin-bottom: 12px; }
@@ -453,6 +455,11 @@ const configData = {
             // 同步矩阵到输入框
             syncMatrixToInputs(matrix);
             
+            // 从矩阵同步到滑块
+            if (isUpdatingFromMatrix) {
+                syncSlidersFromMatrix(matrix);
+            }
+            
             // 清理旧内容
             clearGroup(originalGroup);
             clearGroup(transformedRawGroup);
@@ -512,6 +519,18 @@ const configData = {
                     <input type="number" step="0.1" value="${p[1]}" id="py${i}">
                 </div>`
             ).join('');
+            
+            // 点坐标实时更新
+            originalPolygon.forEach((_, i) => {
+                document.getElementById(`px${i}`).addEventListener('input', () => {
+                    originalPolygon[i][0] = parseFloat(document.getElementById(`px${i}`).value);
+                    updateTransform();
+                });
+                document.getElementById(`py${i}`).addEventListener('input', () => {
+                    originalPolygon[i][1] = parseFloat(document.getElementById(`py${i}`).value);
+                    updateTransform();
+                });
+            });
         }
 
         function addPoint() {

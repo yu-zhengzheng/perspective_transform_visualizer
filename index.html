@@ -119,23 +119,20 @@
             <input type="range" id="azim" min="-180" max="180" value="45">
         </div>
 
-        <!-- 实时更新，移除按钮 -->
-        <button onclick="resetAll()">🔄 复位</button>
-
         <div class="legend">
             <div class="legend-item"><div class="dot" style="background:#0088ff"></div>原始 (z=1)</div>
             <div class="legend-item"><div class="dot" style="background:#ff4444"></div>变换后3D</div>
             <div class="legend-item"><div class="dot" style="background:#44ff44"></div>投影 (z=1)</div>
         </div>
-
-        <div id="info">
-            <strong>计算结果：</strong>
-            <div id="result"></div>
-        </div>
     </div>
     
     <div id="controls-right">
-        <h2>📐 原始图形</h2>
+        <h2>📐 计算结果</h2>
+        <div id="result"></div>
+        <div style="margin-top:15px;">
+            <button onclick="resetMatrix()">🔄 复位矩阵</button>
+            <button onclick="resetPolygon()">🔄 复位多边形</button>
+        </div>
         <div id="polygon-inputs"></div>
         <div style="display:flex;gap:5px;margin-top:8px">
             <button onclick="addPoint()">+ 点</button>
@@ -431,23 +428,11 @@
             });
             addDashedLine(originalGroup, dashedPoints);
 
-            // 更新信息 - 显示转换后的坐标 (x, z, y)
-            const formatPointsConverted = (arr) => arr.map(p => `${p[0].toFixed(2)}\t${p[2].toFixed(2)}\t${p[1].toFixed(2)}`).join('\n');
+            // 更新信息 - 显示原始坐标 (x, y, z)
+            const formatPointsOriginal = (arr) => arr.map(p => `${p[0].toFixed(2)}\t${p[1].toFixed(2)}\t${p[2].toFixed(2)}`).join('\n');
             document.getElementById('result').innerHTML = 
-                `<strong>变换后3D (x,z,y):</strong>\n<pre>${formatPointsConverted(transformedRawConverted)}</pre>` +
-                `<strong>投影3D(x,z,y):</strong>\n<pre>${formatPointsConverted(projectedConverted)}</pre>`;
-        }
-
-        function resetAll() {
-            // 重置滚动条
-            ['tx','ty','rotate','sx','sy','shx','shy','px','py','tz'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.value = id === 'sx' || id === 'sy' ? 1 : 0;
-            });
-            // 重置多边形
-            originalPolygon = [[-1,-1], [1,-1], [1,1], [-1,1]];
-            renderPolygonInputs();
-            resetMatrix();
+                `<strong>变换后3D (x,y,z):</strong>\n<pre>${formatPointsOriginal(result.raw)}</pre>` +
+                `<strong>投影3D(x,y,z):</strong>\n<pre>${formatPointsOriginal(result.projected)}</pre>`;
         }
 
         function resetMatrix() {
@@ -460,6 +445,12 @@
             document.getElementById('m20').value = 0;
             document.getElementById('m21').value = 0;
             document.getElementById('m22').value = 1;
+            updateTransform();
+        }
+
+        function resetPolygon() {
+            originalPolygon = [[-1,-1], [1,-1], [1,1], [-1,1]];
+            renderPolygonInputs();
             updateTransform();
         }
 

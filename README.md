@@ -32,7 +32,13 @@
 
 ---
 
-## 🚀 使用方法
+## 🚀 在线访问
+
+**直接访问**：https://yu-zhengzheng.github.io/perspective_transform_visualizer/
+
+---
+
+## 🚀 本地运行
 
 直接用浏览器打开 `index.html` 即可：
 

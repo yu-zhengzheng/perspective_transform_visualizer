@@ -215,8 +215,8 @@ const configData = {
             document.getElementById('py').value = config.sliders.py;
             document.getElementById('tz').value = config.sliders.tz;
             
-            // 应用多边形
-            originalPolygon = config.polygon;
+            // 应用多边形（深拷贝，避免引用问题）
+            originalPolygon = JSON.parse(JSON.stringify(config.polygon));
             renderPolygonInputs();
         }
 
@@ -522,7 +522,7 @@ const configData = {
         function resetPolygon() {
             const config = loadConfig();
             currentConfig = config;
-            originalPolygon = config.polygon;
+            originalPolygon = JSON.parse(JSON.stringify(config.polygon));
             renderPolygonInputs();
             updateTransform();
         }

@@ -215,14 +215,13 @@ const configData = {
             document.getElementById('py').value = config.sliders.py;
             document.getElementById('tz').value = config.sliders.tz;
             
-            // 应用多边形（深拷贝，避免引用问题）
-            originalPolygon = JSON.parse(JSON.stringify(config.polygon));
-            renderPolygonInputs();
         }
 
         function init() {
             const config = loadConfig();
             applyConfig(config);
+            // 多边形单独初始化，不放在applyConfig里（避免resetMatrix时重置多边形）
+            originalPolygon = JSON.parse(JSON.stringify(config.polygon));
             renderPolygonInputs();
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x1a1a2e);

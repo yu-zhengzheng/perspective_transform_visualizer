@@ -2,9 +2,6 @@
  <img src="https://img.shields.io/badge/Three.js-000?style=flat&logo=three.js&logoColor=white" alt="Three.js">
  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=white" alt="JavaScript">
  <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT">
- <br>
- <img src="https://img.shields.io/badge/EN-blue?style=flat" alt="EN">
- <img src="https://img.shields.io/badge/ZH-red?style=flat" alt="ZH">
 </p>
 
 # 🔷 透视变换可视化工具

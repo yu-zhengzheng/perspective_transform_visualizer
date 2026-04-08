@@ -1,3 +1,12 @@
+<p align="center">
+ <img src="https://img.shields.io/badge/Three.js-000?style=flat&logo=three.js&logoColor=white" alt="Three.js">
+ <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=white" alt="JavaScript">
+ <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT">
+ <br>
+ <img src="https://img.shields.io/badge/EN-blue?style=flat" alt="EN">
+ <img src="https://img.shields.io/badge/ZH-red?style=flat" alt="ZH">
+</p>
+
 # 🔷 透视变换可视化工具
 
 > **⚠️ 重要声明：这个项目是 100% 纯氛围编程 (Vibe Coding) 完成的。**
@@ -40,7 +49,7 @@
 
 ## 🚀 本地运行
 
-直接用浏览器打开 `index.html` 即可：
+直接用浏览器打开 `index.html` 即可（支持离线）：
 
 ```bash
 # 双击 index.html
@@ -89,6 +98,12 @@ W = px*x + py*y + w
 x' = X / W
 y' = Y / W
 ```
+
+---
+
+## 📄 License
+
+MIT License - 详见 [LICENSE](LICENSE) 文件
 
 ---
 

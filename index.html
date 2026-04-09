@@ -77,6 +77,35 @@ const configData = {
                 visitors: 'Visits',
                 langZh: '中文',
                 langEn: 'English'
+            },
+            'eo': {
+                title: 'Perspektiva Transformo Bildigilo',
+                translate: 'Traduko (tx, ty)',
+                rotate: 'Rotacio (gradoj)',
+                scale: 'Skalo (sx, sy)',
+                shear: 'Ŝero (shx, shy)',
+                perspective: 'Perspektivo (px, py)',
+                zDistance: 'Z Distanco (d)',
+                matrix: 'Perspektiva Matrico (3×3)',
+                resetMatrix: 'Restarigi Matricon',
+                resetMatrixBtn: '🔄 Restarigi Matricon',
+                camera: '📷 Kamera Vido',
+                elevation: '⬆️ Elevo <span class="val" id="elev-val">20°</span>',
+                azimuth: '🔄 Azimuto <span class="val" id="azim-val">45°</span>',
+                distance: '📏 Distanco <span class="val" id="dist-val">5</span>',
+                legendOriginal: '<div class="dot" style="background:#0088ff"></div>Origina (z=1)',
+                legendTransformed: '<div class="dot" style="background:#ff4444"></div>Transformita 3D',
+                legendProjected: '<div class="dot" style="background:#44ff44"></div>Projekciita (z=1)',
+                result: 'Kalkula Rezulto',
+                resetPolygon: 'Restarigi Poligonon',
+                resetPolygonBtn: '🔄 Restarigi Poligonon',
+                addPoint: '+ Punkto',
+                removePoint: '- Punkto',
+                updatePolygon: 'Ĝisdatigi Formon',
+                updatePolygonBtn: '✨ Ĝisdatigi Formon',
+                transformed3D: 'Transformita 3D (x,y,z)',
+                projected3D: 'Projekciita 3D (x,y,z)',
+                visitors: 'Vizitoj'
             }
         };
 
@@ -144,12 +173,16 @@ const configData = {
                 distValEl.textContent = distVal;
             }
 
-            // 更新计算结果标题
+            // 更新计算结果标题（保留原数据，只翻译标题）
             const resultDiv = document.getElementById('result');
             if (resultDiv.innerHTML) {
-                resultDiv.innerHTML = resultDiv.innerHTML
-                    .replace('变换后3D (x,y,z):', t('transformed3D') + ':')
-                    .replace('投影3D(x,y,z):', t('projected3D') + ':');
+                const titles = ['transformed3D', 'projected3D'];
+                const keys = [t('transformed3D'), t('projected3D')];
+                // 找到所有 <strong>...</strong> 并按顺序替换
+                let idx = 0;
+                resultDiv.innerHTML = resultDiv.innerHTML.replace(/<strong>([^<]+)<\/strong>/g, (match) => {
+                    return '<strong>' + keys[idx++] + '</strong>';
+                });
             }
 
             // 更新访客计数器文字
@@ -189,7 +222,7 @@ const configData = {
         }
     </style>
     <style>
-        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: #eee; }
+        body { margin: 0; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif; background: #1a1a2e; color: #eee; }
         #container { width: 100vw; height: 100vh; }
         #controls {
             position: absolute; top: 20px; left: 20px;
@@ -240,7 +273,7 @@ const configData = {
         .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
         .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.85em; }
         .dot { width: 12px; height: 12px; border-radius: 50%; }
-        pre { margin: 5px 0; white-space: pre; font-family: monospace; }
+        pre { margin: 5px 0; white-space: pre; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; }
         .point-input { display: flex; align-items: center; gap: 5px; margin-bottom: 8px; }
         .point-input span { width: 24px; color: #aaa; }
         .point-input input { width: 70px; }
@@ -257,6 +290,7 @@ const configData = {
         <select onchange="setLang(this.value)">
             <option value="zh">🇨🇳 中文</option>
             <option value="en">🇺🇸 English</option>
+            <option value="eo">🇺🇳 Esperanto</option>
         </select>
     </div>
 

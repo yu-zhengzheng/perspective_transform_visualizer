@@ -45,7 +45,8 @@ const configData = {
                 projected3D: '投影3D(x,y,z)',
                 visitors: '访问',
                 langZh: '中文',
-                langEn: 'English'
+                langEn: 'English',
+                authorLink: '由虞铮铮使用OpenClaw🦞氛围编程构建',
             },
             'en': {
                 title: 'Perspective Transform Visualizer',
@@ -76,7 +77,8 @@ const configData = {
                 projected3D: 'Projected 3D (x,y,z)',
                 visitors: 'Visits',
                 langZh: '中文',
-                langEn: 'English'
+                langEn: 'English',
+                authorLink: 'Vibe coded by Zhengzheng Yu with OpenClaw🦞'
             },
             'eo': {
                 title: 'Perspektiva Transformo Bildigilo',
@@ -105,7 +107,8 @@ const configData = {
                 updatePolygonBtn: '✨ Ĝisdatigi Formon',
                 transformed3D: 'Transformita 3D (x,y,z)',
                 projected3D: 'Projekciita 3D (x,y,z)',
-                visitors: 'Vizitoj'
+                visitors: 'Vizitoj',
+                authorLink: 'Vibe kodita de Zhengzheng Yu per OpenClaw 🦞'
             }
         };
 
@@ -190,6 +193,7 @@ const configData = {
             if (visitorDiv) {
                 visitorDiv.innerHTML = '👁️ ' + t('visitors') + ': <span id="busuanzi_value_site_pv">-</span>';
             }
+
         }
     </script>
     <style>
@@ -815,6 +819,10 @@ const configData = {
     <!-- 访客计数器 -->
     <div id="visitor-counter" style="position:fixed;bottom:10px;right:10px;background:rgba(30,30,50,0.8);padding:8px 12px;border-radius:8px;color:#aaa;font-size:12px;">
         👁️ 访问: <span id="busuanzi_value_site_pv">-</span>
+    </div>
+    <!-- 作者链接 -->
+    <div id="author-link" style="position:fixed;bottom:10px;left:50%;transform:translateX(-50%);">
+        <a href="https://yu-zhengzheng.github.io/yu-zhengzheng/" target="_blank" style="color:#666;font-size:12px;text-decoration:none;" data-i18n="authorLink">由虞铮铮使用OpenClaw🦞氛围编程构建</a>
     </div>
     <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 </body>
